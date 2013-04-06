@@ -27,12 +27,16 @@ int main()
 
   try
   {
+    // Initializes Squirrel VM.
     vm v;
     v.register_stdlib();
 
     // Registers error handlers.
     v.register_compile_error_handler(compile_error_handler);
     v.register_runtime_error_handler(runtime_error_handler);
+
+    // Registers a custom output stream.
+    //v.register_output_stream(&mystream);
 
     // Binding C++ functions/classes.
     v.global()

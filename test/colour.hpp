@@ -2,12 +2,12 @@
 #define COLOUR_HPP
 
 #include <boost/cstdint.hpp>
+
 using boost::uint8_t;
 using boost::uint32_t;
 
 struct colour
 {
-
   colour() throw();
   colour(uint8_t r, uint8_t g, uint8_t b) throw();
   colour(const colour& other) throw();
@@ -28,16 +28,15 @@ struct colour
   uint8_t r;
   uint8_t g;
   uint8_t b;
-
 };
 
-inline colour::colour() throw()
-  : r(0), g(0), b(0)
+inline colour::colour() throw() :
+  r(0), g(0), b(0)
 {
 }
 
-inline colour::colour(uint8_t r, uint8_t g, uint8_t b) throw()
-  : r(r), g(g), b(b)
+inline colour::colour(uint8_t r, uint8_t g, uint8_t b) throw() :
+  r(r), g(g), b(b)
 {
 }
 

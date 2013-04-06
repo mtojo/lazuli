@@ -22,7 +22,7 @@
 #include <sqstdblob.h>
 #include <sqstdio.h>
 #include <sqstdsystem.h>
-#include <sqstdmath.h>  
+#include <sqstdmath.h>
 #include <sqstdstring.h>
 
 namespace lazuli {
@@ -44,8 +44,10 @@ public:
     : hvm(::sq_open(1024)), ceh(0), reh(0)
 #ifdef SQUNICODE
     , os(&::std::wcout)
+    , es(&::std::wcerr)
 #else
     , os(&::std::cout)
+    , es(&::std::cerr)
 #endif
   {
     this->initialize();
@@ -55,8 +57,10 @@ public:
     : hvm(hvm), ceh(0), reh(0)
 #ifdef SQUNICODE
     , os(&::std::wcout)
+    , es(&::std::wcerr)
 #else
     , os(&::std::cout)
+    , es(&::std::cerr)
 #endif
   {
     this->initialize();
@@ -180,7 +184,7 @@ private:
     ::sq_newclosure(this->hvm, vm::errorhandler, 0);
     ::sq_seterrorhandler(this->hvm);
 
-    ::sq_setprintfunc(this->hvm, vm::printfunc);
+    ::sq_setprintfunc(this->hvm, vm::printfunc, vm::errorfunc);
 
     ::sq_pushroottable(this->hvm);
   }
@@ -239,12 +243,27 @@ private:
     }
   }
 
+  static void errorfunc(::HSQUIRRELVM hvm, const ::SQChar* s, ...) throw()
+  {
+    vm* v = reinterpret_cast<vm*>(::sq_getforeignptr(hvm));
+    if (v != 0)
+    {
+      ::std::va_list vl;
+      va_start(vl, s);
+      int nsize = detail::format(0, 0, s, vl) + 1;
+      ::boost::scoped_array< ::SQChar> buffer(new ::SQChar[nsize]);
+      detail::format(buffer.get(), nsize, s, vl);
+      *(v->es) << buffer.get() << ::std::endl;
+      va_end(vl);
+    }
+  }
+
 private:
   ::HSQUIRRELVM hvm;
   compile_error_handler ceh;
   runtime_error_handler reh;
   ::std::basic_ostream< ::SQChar>* os;
-
+  ::std::basic_ostream< ::SQChar>* es;
 };
 
 } // namespace lazuli
